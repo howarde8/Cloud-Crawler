@@ -1,16 +1,6 @@
-const { ApolloServer, gql } = require('apollo-server');
-
-const typeDefs = gql`
-  type Query {
-    description: String
-  }
-`;
-
-const resolvers = {
-  Query: {
-    description: () => 'This is a cloud crawler system',
-  },
-};
+const { ApolloServer } = require('apollo-server');
+const typeDefs = require('./schema');
+const resolvers = require('./resolvers');
 
 const server = new ApolloServer({
   typeDefs,
