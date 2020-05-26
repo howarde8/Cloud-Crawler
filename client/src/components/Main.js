@@ -1,5 +1,5 @@
-import React from 'react';
-import { Query } from '@apollo/react-components';
+import React, { useState } from 'react';
+import { withApollo } from 'react-apollo';
 import { gql } from 'apollo-boost';
 import { Layout, Menu, Input, Row, Col, Divider } from 'antd';
 
@@ -9,9 +9,18 @@ const DESCRIPTION = gql`
   }
 `;
 
-function Main() {
+const CRAWL = gql`
+  query Crawl($xpath: String!) {
+    crawl(xpath: $xpath)
+  }
+`;
+
+function Main({ client }) {
+  const [crawlResult, setCrawlResult] = useState(null);
+
   const onSearch = (value) => {
     console.log(value);
+    client.query({ query: CRAWL, variables: { xpath: value } }).then(({ data: { crawl } }) => setCrawlResult(crawl));
   };
 
   return (
@@ -36,14 +45,7 @@ function Main() {
           <Row justify="center">
             <Divider />
             <Col xs={24} lg={16} xl={12}>
-              <Query query={DESCRIPTION}>
-                {({ loading, error, data }) => {
-                  if (loading) return <div>Loading...</div>;
-                  if (error) return <div>Error</div>;
-
-                  return <div>{data.description}</div>;
-                }}
-              </Query>
+              {crawlResult}
             </Col>
           </Row>
         </Layout.Content>
@@ -52,4 +54,4 @@ function Main() {
   );
 }
 
-export default Main;
+export default withApollo(Main);

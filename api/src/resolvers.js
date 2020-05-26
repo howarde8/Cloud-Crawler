@@ -3,6 +3,9 @@ const jwt = require('jsonwebtoken');
 module.exports = {
   Query: {
     description: () => 'This is a cloud crawler system',
+    crawl: (_, { xpath }) => {
+      return 'Result of ' + xpath;
+    },
   },
   Mutation: {
     login: (_, { username, password }) => {
