@@ -1,5 +1,13 @@
 import React from 'react';
-import { Layout, Menu, Input, Row, Col } from 'antd';
+import { Query } from '@apollo/react-components';
+import { gql } from 'apollo-boost';
+import { Layout, Menu, Input, Row, Col, Divider } from 'antd';
+
+const DESCRIPTION = gql`
+  {
+    description
+  }
+`;
 
 function Main() {
   const onSearch = (value) => {
@@ -21,8 +29,21 @@ function Main() {
                 placeholder="XPath"
                 enterButton="Crawl"
                 onSearch={onSearch}
-                style={{ margin: '10px' }}
+                style={{ margin: '50px 10px 10px 10px' }}
               ></Input.Search>
+            </Col>
+          </Row>
+          <Row justify="center">
+            <Divider />
+            <Col xs={24} lg={16} xl={12}>
+              <Query query={DESCRIPTION}>
+                {({ loading, error, data }) => {
+                  if (loading) return <div>Loading...</div>;
+                  if (error) return <div>Error</div>;
+
+                  return <div>{data.description}</div>;
+                }}
+              </Query>
             </Col>
           </Row>
         </Layout.Content>
