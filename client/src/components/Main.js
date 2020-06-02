@@ -1,17 +1,25 @@
 import React, { useState } from 'react';
-import { withApollo } from 'react-apollo';
+import { withApollo, Subscription } from 'react-apollo';
 import { gql } from 'apollo-boost';
 import { Layout, Menu, Input, Row, Col, Divider } from 'antd';
 
-const DESCRIPTION = gql`
-  {
-    description
+const CRAWL_SUBSCRIPTION = gql`
+  subscription onCrawlAdded {
+    crawlAdded {
+      id
+      status
+      result
+    }
   }
 `;
 
 const CRAWL = gql`
-  query Crawl($xpath: String!) {
-    crawl(xpath: $xpath)
+  mutation Crawl($url: String!, $xpath: String!) {
+    crawl(url: $url, xpath: $xpath) {
+      id
+      status
+      result
+    }
   }
 `;
 
@@ -20,7 +28,9 @@ function Main({ client }) {
 
   const onSearch = (value) => {
     console.log(value);
-    client.query({ query: CRAWL, variables: { xpath: value } }).then(({ data: { crawl } }) => setCrawlResult(crawl));
+    client
+      .mutate({ mutation: CRAWL, variables: { url: 'TODO', xpath: value } })
+      .then(({ data: { crawl } }) => setCrawlResult(JSON.stringify(crawl)));
   };
 
   return (
@@ -46,6 +56,18 @@ function Main({ client }) {
             <Divider />
             <Col xs={24} lg={16} xl={12}>
               {crawlResult}
+            </Col>
+          </Row>
+          <Row justify="center">
+            <Divider />
+            <p>Test</p>
+            <Col xs={24} lg={16} xl={12}>
+              <Subscription subscription={CRAWL_SUBSCRIPTION}>
+                {({ data, loading }) => {
+                  if (loading) return <p>Loading...</p>;
+                  return <p>data: {JSON.stringify(data)}</p>;
+                }}
+              </Subscription>
             </Col>
           </Row>
         </Layout.Content>

@@ -3,11 +3,17 @@ const { gql } = require('apollo-server');
 module.exports = gql`
   type Query {
     description: String
-    crawl(xpath: String!): String!
+    crawls: [Crawl!]
   }
 
   type Mutation {
     login(username: String!, password: String!): AuthPayload
+    addCrawl(url: String!, xpath: String!): Crawl!
+    fakeUpdateCrawl(id: ID!, result: [String]): String
+  }
+
+  type Subscription {
+    crawlUpdated: Crawl
   }
 
   type AuthPayload {
@@ -17,5 +23,14 @@ module.exports = gql`
 
   type User {
     username: String!
+  }
+
+  type Crawl {
+    id: ID!
+    name: String
+    url: String!
+    xpath: String!
+    status: String!
+    result: [String]!
   }
 `;

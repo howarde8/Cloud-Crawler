@@ -1,10 +1,16 @@
+const { PubSub } = require('apollo-server');
 const jwt = require('jsonwebtoken');
+
+const pubsub = new PubSub();
+
+let idCnt = 0;
+const tempCrawls = {};
 
 module.exports = {
   Query: {
     description: () => 'This is a cloud crawler system',
-    crawl: (_, { xpath }) => {
-      return 'Result of ' + xpath;
+    crawls: () => {
+      return Object.values(tempCrawls);
     },
   },
   Mutation: {
@@ -20,6 +26,27 @@ module.exports = {
       }
 
       throw Error('Not authenticated');
+    },
+    addCrawl: (_, { url, xpath }) => {
+      let currentId = idCnt;
+      tempCrawls[currentId] = {
+        id: currentId,
+        url,
+        xpath,
+        status: 'IN PROGRESS',
+        result: [],
+      };
+      idCnt += 1;
+      return tempCrawls[currentId];
+    },
+    fakeUpdateCrawl: (_, { id, result }) => {
+      tempCrawls[id].result = result;
+      pubsub.publish('CRAWL_UPDATED', { crawlUpdated: tempCrawls[id] });
+    },
+  },
+  Subscription: {
+    crawlUpdated: {
+      subscribe: () => pubsub.asyncIterator(['CRAWL_UPDATED']),
     },
   },
 };
