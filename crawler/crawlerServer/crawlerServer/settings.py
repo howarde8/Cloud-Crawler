@@ -25,7 +25,7 @@ SECRET_KEY = '3pe-kng7*m3s!^k&$^)8gmg%pf2f_cd4-@(lke6m-)57&3r*oc'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*",]
 
 
 # Application definition
@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_q',
     'rest_framework',
     'corsheaders',
     'backend',
@@ -126,3 +127,16 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
+
+CORS_ALLOW_CREDENTIALS = True
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_HEADERS = ('*')
+
+Q_CLUSTER = {
+    'name': 'DjangORM',    
+    'workers': 1,       
+    'timeout': 600,    
+    'retry': 1200,    
+    'queue_limit': 50,    
+    'bulk': 10,    
+    'orm': 'default'}
