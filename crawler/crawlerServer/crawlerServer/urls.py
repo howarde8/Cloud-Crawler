@@ -15,7 +15,15 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from backend import views
+from rest_framework import routers
+from backend import views
+from django.conf.urls import include
+
+crawler_router = routers.DefaultRouter()
+crawler_router.register('api/crawl', views.ScheduleViewSet, base_name="crawl")
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', include(crawler_router.urls)),
 ]
