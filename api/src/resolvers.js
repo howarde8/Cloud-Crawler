@@ -12,6 +12,9 @@ module.exports = {
     crawls: () => {
       return Object.values(tempCrawls);
     },
+    crawl: (_, { id }) => {
+      return tempCrawls[id];
+    },
   },
   Mutation: {
     login: (_, { username, password }) => {
@@ -41,6 +44,7 @@ module.exports = {
     },
     fakeUpdateCrawl: (_, { id, result }) => {
       tempCrawls[id].result = result;
+      tempCrawls[id].status = 'CRAWLED'
       pubsub.publish('CRAWL_UPDATED', { crawlUpdated: tempCrawls[id] });
     },
   },
