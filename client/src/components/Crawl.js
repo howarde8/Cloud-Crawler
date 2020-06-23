@@ -31,9 +31,9 @@ export default function () {
             <>
               <Descriptions title="Crawl information" bordered>
                 <Descriptions.Item label="ID">{data.crawl.id}</Descriptions.Item>
-                <Descriptions.Item label="Status">{data.crawl.id}</Descriptions.Item>
-                <Descriptions.Item label="URL">{data.crawl.id}</Descriptions.Item>
-                <Descriptions.Item label="XPath">{data.crawl.id}</Descriptions.Item>
+                <Descriptions.Item label="Status">{data.crawl.status}</Descriptions.Item>
+                <Descriptions.Item label="URL">{data.crawl.url}</Descriptions.Item>
+                <Descriptions.Item label="XPath">{data.crawl.xpath}</Descriptions.Item>
               </Descriptions>
               <Divider />
               <Table

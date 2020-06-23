@@ -1,10 +1,8 @@
-const { PubSub } = require('apollo-server');
 const jwt = require('jsonwebtoken');
-
-const pubsub = new PubSub();
+const pubsub = require('./pubsub');
 
 let idCnt = 0;
-const tempCrawls = {};
+const tempCrawls = require('./fakeDb');
 
 module.exports = {
   Query: {
@@ -44,7 +42,7 @@ module.exports = {
     },
     fakeUpdateCrawl: (_, { id, result }) => {
       tempCrawls[id].result = result;
-      tempCrawls[id].status = 'CRAWLED'
+      tempCrawls[id].status = 'CRAWLED';
       pubsub.publish('CRAWL_UPDATED', { crawlUpdated: tempCrawls[id] });
     },
   },
