@@ -1,6 +1,8 @@
 import React from 'react';
 import { Query } from 'react-apollo';
 import { gql } from 'apollo-boost';
+import { useHistory } from 'react-router-dom';
+import { Descriptions, Table, Divider } from 'antd';
 
 const CRAWL = gql`
   query Crawl($id: ID!) {
@@ -16,23 +18,31 @@ const CRAWL = gql`
 `;
 
 export default function () {
+  const history = useHistory();
+  const crawlId = history.location.pathname.split('/').pop();
+
   return (
-    <div>
-      <h1>Crawl</h1>
-      <Query query={CRAWL} variables={{ id: 0 }}>
+    <div style={{ margin: 20 }}>
+      <Query query={CRAWL} variables={{ id: crawlId }}>
         {({ loading, error, data }) => {
           if (loading) return 'Loading...';
           if (error) return 'Error';
           return (
             <>
-              <p>ID: {data.crawl.id}</p>
-              <p>URL: {data.crawl.url}</p>
-              <p>XPath: {data.crawl.xpath}</p>
-              <p>Status: {data.crawl.status}</p>
-              <p>Result:</p>
-              {data.crawl.result.map((e) => (
-                <p>{e}</p>
-              ))}
+              <Descriptions title="Crawl information" bordered>
+                <Descriptions.Item label="ID">{data.crawl.id}</Descriptions.Item>
+                <Descriptions.Item label="Status">{data.crawl.id}</Descriptions.Item>
+                <Descriptions.Item label="URL">{data.crawl.id}</Descriptions.Item>
+                <Descriptions.Item label="XPath">{data.crawl.id}</Descriptions.Item>
+              </Descriptions>
+              <Divider />
+              <Table
+                columns={[
+                  { title: 'Order', key: 'order', dataIndex: 'order' },
+                  { title: 'Result', key: 'line', dataIndex: 'line' },
+                ]}
+                dataSource={data.crawl.result.map((e, i) => ({ key: i, order: i, line: e }))}
+              />
             </>
           );
         }}
