@@ -7,12 +7,12 @@ class ScheduleSerializers(serializers.ModelSerializer):
         model = Schedule
         fields = '__all__'
 
-class ResultSerializers(serializers.ModelSerializer):
-    class Meta:
-        model = models.Result
-        fields = '__all__'
+# class ResultSerializers(serializers.ModelSerializer):
+#     class Meta:
+#         model = models.Result
+#         fields = '__all__'
 
-class JobSerializers(serializers.ModelSerializer):
-    class Meta:
-        model = models.Job
-        fields = '__all__'
+# class JobSerializers(serializers.ModelSerializer):
+#     class Meta:
+#         model = models.Job
+#         fields = '__all__'
