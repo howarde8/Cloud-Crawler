@@ -85,7 +85,7 @@ DATABASES = {
         'USER': 'root',
         'PASSWORD': '123456',
         'HOST':'127.0.0.1',
-        'PORT':'9530'
+        'PORT':'3306'
     }
 }
 
@@ -140,3 +140,5 @@ Q_CLUSTER = {
     'queue_limit': 50,    
     'bulk': 10,    
     'orm': 'default'}
+
+API_SERVER = "http://localhost:5000/"

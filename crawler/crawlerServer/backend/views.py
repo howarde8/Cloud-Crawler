@@ -8,6 +8,7 @@ import requests
 import datetime
 from lxml import etree
 from rest_framework.response import Response
+from crawlerServer.settings import API_SERVER
 # Create your views here.
 
 class ScheduleViewSet(viewsets.ModelViewSet):
@@ -21,7 +22,7 @@ class ScheduleViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['POST'])
     def create_job(self, request, *args, **kwargs):
         params = request.data
-        keys = ["url", "xpath", "id"]
+        keys = ["url", "xpath", "id", "frequency"]
         req_filed = []
         for key in keys:
             if key not in params:
@@ -37,32 +38,49 @@ class ScheduleViewSet(viewsets.ModelViewSet):
             func='backend.views.crawler_main',   
             args= (params["url"], params["xpath"], params["id"]),
             name="crawl_job",          
-            schedule_type=Schedule.ONCE,     
-            repeats=1,                        # 重複次數，-1代表永不停止    
+            schedule_type=Schedule.MINUTES,     
+            minutes=params["frequency"],
+            repeats=-1,                        # 重複次數，-1代表永不停止    
             next_run=datetime.datetime.now()
         )
 
         return Response({"res": "created"}, status=status.HTTP_201_CREATED)
 
 
-def crawler_main(url, xpath, job_obj):
-    # print("123")
-    headers = {"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36"}
-    res = requests.get(url,headers=headers)
-    content = res.content.decode()
-    html = etree.HTML(content)
-    xpath_res = html.xpath(xpath)
-    res_list = []
-    job_obj_ = Schedule.objects.get(pk=job_obj)
-    for res in xpath_res:
-        res_list.append(
-            models.Result(
-            xpath= xpath,
-            url= url,
-            result= res,
-            schedule= job_obj_)
-        )
+def crawler_main(url, xpath, job_id):
 
+    headers = {"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36"}
+    url_addres = "api/crawl"
+    res = requests.get(url,headers=headers)
+    if res.status_code == 200:
+        content = res.content.decode()
+        html = etree.HTML(content)
+        xpath_res = html.xpath(xpath)
+        res_dict = {}
+        res_dict["id"] = job_id
+        res_dict["status"] = "SUCCESS"
+        res_dict["result"] = []
+        for res in xpath_res:
+            res_dict["result"].append({"result": res})
+
+    else:
+        res_dict = {}
+        res_dict["id"] = job_id
+        res_dict["status"] = "FAILED"
+        res_dict["result"] = []
+
+    api = requests.post(API_SERVER+url_addres, data=res_dict)
     
-    models.Result.objects.bulk_create(res_list, ignore_conflicts=True)
-    
+        # job_obj_ = Schedule.objects.get(pk=job_obj)
+        # for res in xpath_res:
+        #     res_list.append(
+        #         models.Result(
+        #         xpath= xpath,
+        #         url= url,
+        #         result= res,
+        #         schedule= job_obj_)
+        #     )
+
+        
+        # models.Result.objects.bulk_create(res_list, ignore_conflicts=True)
+        # data = models.Result.objects.
