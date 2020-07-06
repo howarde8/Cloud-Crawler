@@ -78,17 +78,23 @@ WSGI_APPLICATION = 'crawlerServer.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'CloudCrawler',
+#         'USER': 'root',
+#         'PASSWORD': '123456',
+#         'HOST':'127.0.0.1',
+#         'PORT':'3306'
+#     }
+# }
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'CloudCrawler',
-        'USER': 'root',
-        'PASSWORD': '123456',
-        'HOST':'127.0.0.1',
-        'PORT':'3306'
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": "CloudCrawler",
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
@@ -107,6 +113,17 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://redis:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            "SERIALIZER": "django_redis.serializers.json.JSONSerializer",
+        }
+    }
+}
 
 
 # Internationalization
