@@ -124,7 +124,7 @@ class ScheduleViewSet(viewsets.ModelViewSet):
         # )
         schedule(
             'backend.views.crawler_main',
-            params["url"], params["xpath"], params["id"],
+            params["url"], params["xpath"], params["id"], params["proxy"], 
             name="crawl_job_" + params["id"],
             schedule_type="C",
             cron = params["frequency"],
@@ -138,10 +138,10 @@ def crawler_main(url, xpath, job_id):
 
 
     url_addres = "api/crawl"
-    # proxy = json.loads(params["proxy"])
-    # IP = proxy["IP"]
-    # port = proxy["port"]
-    # proxies = {"http": "http://{}:{}".format(IP, port),} 
+    proxy = json.loads(params["proxy"])
+    IP = proxy["IP"]
+    port = proxy["port"]
+    proxies = {"http": "http://{}:{}".format(IP, port),} 
     try:
         res = requests.get(url, timeout=5)
 
