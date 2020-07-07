@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const typeDefs = require('./schema');
 const resolvers = require('./resolvers');
 const pubsub = require('./pubsub');
+const db = require('./db');
 
 const tempCrawls = require('./fakeDb');
 
