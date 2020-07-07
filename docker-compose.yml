@@ -1,0 +1,29 @@
+version: '3'
+
+services: 
+  redis:
+    build:
+       context: ./redis/
+
+  crawler:
+    image: crawler_image
+    build:
+       context: ./crawler/
+    volumes:
+      - ./crawler/crawlerServer:/code
+    command: python manage.py runserver 0.0.0.0:8083
+    restart: always
+    ports:
+      - "8083:8083"
+    depends_on:
+      - redis
+
+  qcluster:
+    image: crawler_image
+    volumes:
+      - ./crawler/crawlerServer:/code
+    command: python manage.py qcluster
+    restart: always
+    depends_on:
+      - redis
+      - crawler

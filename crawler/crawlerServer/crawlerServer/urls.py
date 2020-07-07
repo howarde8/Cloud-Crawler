@@ -26,4 +26,5 @@ crawler_router.register('api/crawl', views.ScheduleViewSet, base_name="crawl")
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include(crawler_router.urls)),
+    path('api/proxy_server/', views.ProxyServer.as_view())
 ]
