@@ -8,7 +8,6 @@ from django.core.cache import cache
 from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
 from django.shortcuts import render
 from django_q.models import Schedule
-from django_q.tasks import schedule
 from lxml import etree
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
@@ -112,33 +111,28 @@ class ScheduleViewSet(viewsets.ModelViewSet):
                 return_str = return_str + field + ", "
             return Response({"res":return_str + "is required."}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Schedule.objects.create(
-        #     id=params["id"],
-        #     func='backend.views.crawler_main',   
-        #     args= (params["url"], params["xpath"], params["id"], params["proxy"]),
-        #     name="crawl_job",          
-        #     schedule_type="C",     
-        #     cron = params["frequency"],
-        #     repeats=-1,                        # 重複次數，-1代表永不停止    
-        #     next_run=datetime.datetime.now()
-        # )
-        schedule(
-            'backend.views.crawler_main',
-            params["url"], params["xpath"], params["id"], params["proxy"], 
-            name="crawl_job_" + params["id"],
-            schedule_type="C",
-            cron = params["frequency"],
-            repeats=-1,                        # 重複次數，-1代表永不停止    
-            next_run=datetime.datetime.now()
-        )
-        return Response({"res": "created"}, status=status.HTTP_201_CREATED)
+        try:
+            Schedule.objects.create(
+                id=params["id"],
+                func='backend.views.crawler_main',   
+                args= (params["url"], params["xpath"], params["id"], params["proxy"]),
+                name="crawl_job",          
+                schedule_type="C",     
+                cron = params["frequency"],
+                repeats=-1,                        # 重複次數，-1代表永不停止    
+                next_run=datetime.datetime.now()
+            )
+        except:
+            return Response({"res": "ID repeat"}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({"res": "created"}, status=status.HTTP_201_CREATED)
 
 
-def crawler_main(url, xpath, job_id):
+def crawler_main(url, xpath, job_id, proxy):
 
 
     url_addres = "api/crawl"
-    proxy = json.loads(params["proxy"])
+    proxy = json.loads(proxy)
     IP = proxy["IP"]
     port = proxy["port"]
     proxies = {"http": "http://{}:{}".format(IP, port),} 
