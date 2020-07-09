@@ -1,23 +1,21 @@
 version: '3'
 
-services: 
+services:
   redis:
     build:
-       context: ./redis/
-
+      context: ./redis/
   crawler:
     image: crawler_image
     build:
-       context: ./crawler/
+      context: ./crawler/
     volumes:
       - ./crawler/crawlerServer:/code
     command: python manage.py runserver 0.0.0.0:8083
     restart: always
     ports:
-      - "8083:8083"
+      - 8083:8083
     depends_on:
       - redis
-
   qcluster:
     image: crawler_image
     volumes:
@@ -27,3 +25,24 @@ services:
     depends_on:
       - redis
       - crawler
+  client:
+    build:
+      context: ./client
+    volumes:
+      - client_node_modules:/app/node_modules
+      - ./client:/app
+    ports:
+      - 3000:3000
+    stdin_open: true # Cannot start react without this line
+  api:
+    build:
+      context: ./api
+    volumes:
+      - api_node_modules:/app/node_modules
+      - ./api:/app
+    ports:
+      - 4000:4000
+      - 5000:5000
+volumes:
+  api_node_modules:
+  client_node_modules:
