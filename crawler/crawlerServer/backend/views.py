@@ -13,6 +13,13 @@ from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from selenium import webdriver
+from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.support import expected_conditions as expected
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+import os
+import threading
 
 # Create your views here.
 
@@ -45,6 +52,9 @@ class ScheduleViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.ScheduleSerializers
     filterset_fields = "__all__"
 
+    def close_browth(self, driver):
+        driver.close()
+
     def create(self, request, *arg, **kwargs):
         return Response({"detail":"Method \"{}\" not allowed.".format(str(request.method))}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
@@ -61,40 +71,41 @@ class ScheduleViewSet(viewsets.ModelViewSet):
             for field in req_filed:
                 return_str = return_str + field + ", "
             return Response({"res":return_str + "is required."}, status=status.HTTP_400_BAD_REQUEST)
-        proxy = json.loads(params["proxy"])
-        IP = proxy["IP"]
-        port = proxy["port"]
-        proxies = {"http": "http://{}:{}".format(IP, port),} 
 
+        options = Options()
+        options.add_argument('-headless') 
+        options.add_argument('--no-sandbox') 
+        options.add_argument('--disable-dev-shm-usage') 
+
+        proxy = json.loads(params["proxy"])
+        PROXY = "{}:{}".format(proxy["IP"], proxy["port"])
+        webdriver.DesiredCapabilities.CHROME['proxy'] = {
+            "httpProxy": PROXY,
+            "proxyType": "MANUAL",
+        }
+
+        driver = webdriver.Remote(command_executor='http://chromedrive:4444/wd/hub', desired_capabilities=DesiredCapabilities.CHROME, options=options)
+        driver.get(request.data["url"])
         try:
-            res = requests.get(params["url"], proxies = proxies, timeout=5)
+            texts = driver.find_elements_by_xpath(request.data["xpath"])
+       
         except:
+            thread = threading.Thread(target = self.close_browth, args=(driver,))
+            thread.start()
             res_dict = {}
             res_dict["status"] = "FAILED"
-            res_dict["body"] = "BAD URL"
+            res_dict["body"] = "BAD XPATH"
             return Response(res_dict, status=status.HTTP_400_BAD_REQUEST)
 
         else:
-            if res.status_code == 200:
-                content = res.content.decode()
-                html = etree.HTML(content)
-                xpath_res = html.xpath(params["xpath"])
-                res_dict = {}
-                res_dict["status"] = "SUCCESS"
-                res_dict["body"] = []
-                for res in xpath_res:
-                    if isinstance(res, etree._Element):
-                        continue
-                    if isinstance(res, list):
-                        res = res[0]
-                    res_dict["body"].append({"result": res.strip()})
-                return Response(res_dict, status=status.HTTP_201_CREATED)
-
-            else:
-                res_dict = {}
-                res_dict["status"] = "FAILED"
-                res_dict["body"] = "CHANGE PROXY SERVER"
-                return Response(res_dict, status=status.HTTP_400_BAD_REQUEST)
+            res_dict = {}
+            res_dict["status"] = "SUCCESS"
+            res_dict["body"] = []
+            for text in texts:
+                res_dict["body"].append(text.text)
+            thread = threading.Thread(target = self.close_browth, args=(driver,))
+            thread.start()
+            return Response(res_dict, status=status.HTTP_201_CREATED)
 
         
     @action(detail=False, methods=['POST'])
@@ -133,40 +144,37 @@ def crawler_main(url, xpath, job_id, proxy):
 
     url_addres = "api/crawl"
     proxy = json.loads(proxy)
-    IP = proxy["IP"]
-    port = proxy["port"]
-    proxies = {"http": "http://{}:{}".format(IP, port),} 
+    PROXY = "{}:{}".format(proxy["IP"], proxy["port"])
+    webdriver.DesiredCapabilities.CHROME['proxy'] = {
+        "httpProxy": PROXY,
+        "proxyType": "MANUAL",
+    }
+
+    options = Options()
+    options.add_argument('-headless') 
+    options.add_argument('--no-sandbox') 
+    options.add_argument('--disable-dev-shm-usage') 
+
+    driver = webdriver.Remote(command_executor='http://chromedrive:4444/wd/hub', desired_capabilities=DesiredCapabilities.CHROME, options=options)
+    driver.get(url)
+
     try:
-        res = requests.get(url, timeout=5)
+        texts = driver.find_elements_by_xpath(xpath)
 
     except:
         res_dict = {}
-        res_dict["id"] = job_id
         res_dict["status"] = "FAILED"
-        res_dict["body"] = "BAD URL"
+        res_dict["body"] = "BAD XPATH"
         api = requests.post(API_SERVER+url_addres, data=res_dict)
+        driver.close()
 
     else:
-        if res.status_code == 200:
-            content = res.content.decode()
-            html = etree.HTML(content)
-            xpath_res = html.xpath(xpath)
-            res_dict = {}
-            res_dict["id"] = job_id
-            res_dict["status"] = "SUCCESS"
-            res_dict["body"] = []
-            for res in xpath_res:
-                if isinstance(res, etree._Element):
-                    continue
-                if isinstance(res, list):
-                    res = res[0]
-                res_dict["body"].append({"result": res.strip()})
-
-        else:
-            res_dict = {}
-            res_dict["id"] = job_id
-            res_dict["status"] = "FAILED"
-            res_dict["body"] = "CHANGE PROXY SERVER"
-            
-
+        res_dict = {}
+        res_dict["status"] = "SUCCESS"
+        res_dict["body"] = []
+        for text in texts:
+            res_dict["body"].append(text.text)
+        print(res_dict, "To API")
         api = requests.post(API_SERVER+url_addres, data=res_dict)
+        driver.close()
+       
