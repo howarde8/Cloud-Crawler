@@ -158,4 +158,4 @@ Q_CLUSTER = {
     'bulk': 10,    
     'orm': 'default'}
 
-API_SERVER = "http://localhost:5000/"
+API_SERVER = "http://api:5000/"

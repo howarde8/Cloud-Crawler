@@ -13,12 +13,11 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.contrib import admin
-from django.urls import path
-from backend import views
-from rest_framework import routers
 from backend import views
 from django.conf.urls import include
+from django.contrib import admin
+from django.urls import path
+from rest_framework import routers
 
 crawler_router = routers.DefaultRouter()
 crawler_router.register('api/crawl', views.ScheduleViewSet, base_name="crawl")
@@ -26,5 +25,5 @@ crawler_router.register('api/crawl', views.ScheduleViewSet, base_name="crawl")
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include(crawler_router.urls)),
-    path('api/proxy_server/', views.ProxyServer.as_view())
+    path('api/proxy_server/', views.ProxyServer.as_view()),
 ]
