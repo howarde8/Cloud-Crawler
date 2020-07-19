@@ -1,7 +1,9 @@
 FROM node:alpine
-WORKDIR /app
-COPY ./package*.json /app/
+WORKDIR /usr
+COPY ./package*.json ./
 RUN npm install
-COPY ./ ./
+ENV PATH /usr/node_modules/.bin:$PATH
 
+WORKDIR /usr/app
+COPY ./ ./
 CMD ["npm", "run", "start"]

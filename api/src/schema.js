@@ -10,7 +10,8 @@ module.exports = gql`
   type Mutation {
     login(username: String!, password: String!): AuthPayload
     addCrawl(url: String!, xpath: String!): Crawl!
-    fakeUpdateCrawl(id: ID!, result: [String], status: String): String
+    updateCrawl(id: ID!, name: String, url: String, xpath: String): Crawl!
+    deleteCrawl(id: ID!): Int
   }
 
   type Subscription {
@@ -32,6 +33,6 @@ module.exports = gql`
     url: String!
     xpath: String!
     status: String!
-    result: [String]!
+    result: String
   }
 `;
