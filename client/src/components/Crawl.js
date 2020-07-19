@@ -27,6 +27,10 @@ export default function () {
         {({ loading, error, data }) => {
           if (loading) return 'Loading...';
           if (error) return 'Error';
+          let result = data.crawl.result;
+          if (!result) result = [];
+          else result = JSON.parse(result);
+
           return (
             <>
               <Descriptions title="Crawl information" bordered>
@@ -41,7 +45,7 @@ export default function () {
                   { title: 'Order', key: 'order', dataIndex: 'order' },
                   { title: 'Result', key: 'line', dataIndex: 'line' },
                 ]}
-                dataSource={data.crawl.result.map((e, i) => ({ key: i, order: i, line: e }))}
+                dataSource={result.map((e, i) => ({ key: i, order: i, line: e }))}
               />
             </>
           );
