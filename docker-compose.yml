@@ -1,9 +1,18 @@
 version: '3'
 
 services:
+
+  chromedrive:
+    image: selenium/standalone-chrome
+    volumes:
+      - /dev/shm:/dev/shm
+    ports:
+      - "4444:4444"
+
   redis:
     build:
       context: ./redis/
+
   crawler:
     image: crawler_image
     build:
@@ -14,17 +23,23 @@ services:
     restart: always
     ports:
       - 8083:8083
+    links:
+      - chromedrive
     depends_on:
       - redis
+
   qcluster:
     image: crawler_image
     volumes:
       - ./crawler/crawlerServer:/code
     command: python manage.py qcluster
     restart: always
+    links:
+      - chromedrive
     depends_on:
       - redis
       - crawler
+
   client:
     build:
       context: ./client
@@ -33,6 +48,7 @@ services:
     ports:
       - 3000:3000
     stdin_open: true # Cannot start react without this line
+
   api:
     build:
       context: ./api
