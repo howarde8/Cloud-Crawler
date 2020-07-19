@@ -1,4 +1,5 @@
 const { Sequelize, DataTypes } = require('sequelize');
+const bcrypt = require('bcryptjs');
 
 const sequelize = new Sequelize('cc-backend', 'root', 'root', {
   host: 'mysql',
@@ -8,6 +9,7 @@ const sequelize = new Sequelize('cc-backend', 'root', 'root', {
 
 // Require data model
 const User = require('./models/User')(sequelize, DataTypes);
+const Crawl = require('./models/Crawl')(sequelize, DataTypes);
 
 // Development environment, TODO: production env
 (async () => {
@@ -18,7 +20,7 @@ const User = require('./models/User')(sequelize, DataTypes);
     console.log('Sequelize connection has been established successfully');
     const data = await User.create({
       username: 'admin',
-      password: 'admin',
+      password: await bcrypt.hash('admin', 10),
     });
     console.log('Sequelize create default user "admin" succussful');
   } catch (err) {
@@ -28,4 +30,5 @@ const User = require('./models/User')(sequelize, DataTypes);
 
 module.exports = {
   User,
+  Crawl,
 };
