@@ -124,7 +124,7 @@ class ScheduleViewSet(viewsets.ModelViewSet):
 
         try:
             Schedule.objects.create(
-                id=params["id"],
+                # id=params["id"],
                 func='backend.views.crawler_main',   
                 args= (params["url"], params["xpath"], params["id"], params["proxy"]),
                 name="crawl_job",          
@@ -163,6 +163,7 @@ def crawler_main(url, xpath, job_id, proxy):
 
     except:
         res_dict = {}
+        res_dict["id"] = job_id
         res_dict["status"] = "FAILED"
         res_dict["body"] = "BAD XPATH"
         api = requests.post(API_SERVER+url_addres, data=res_dict)
@@ -170,11 +171,12 @@ def crawler_main(url, xpath, job_id, proxy):
 
     else:
         res_dict = {}
+        res_dict["id"] = job_id
         res_dict["status"] = "SUCCESS"
         res_dict["body"] = []
         for text in texts:
             res_dict["body"].append(text.text)
-        print(res_dict, "To API")
+        res_dict["body"] = str(res_dict["body"])
         api = requests.post(API_SERVER+url_addres, data=res_dict)
         driver.close()
        
