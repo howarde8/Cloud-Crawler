@@ -5,6 +5,7 @@ const sequelize = new Sequelize('cc-backend', 'root', 'root', {
   host: 'mysql',
   port: '3306',
   dialect: 'mysql',
+  define: { charset: 'utf8', collate: 'utf8_general_ci', timestamps: true },
 });
 
 // Require data model

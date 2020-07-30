@@ -10,6 +10,8 @@ const app = express();
 app.use(bodyParser());
 app.post('/api/crawl', async (req, res) => {
   const { id, status, body } = req.body;
+  console.log(req.body); // TODO: remove. For testing
+  
   if (!id) {
     return res.status(400).send('ID is missing');
   }
