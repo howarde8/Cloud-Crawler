@@ -8,11 +8,11 @@ module.exports = (sequelize, DataTypes) =>
       type: DataTypes.STRING,
     },
     url: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT,
       allowNull: false,
     },
     xpath: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT,
       allowNull: false,
     },
     status: {
@@ -20,6 +20,6 @@ module.exports = (sequelize, DataTypes) =>
       allowNull: false,
     },
     result: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT,
     },
   });
