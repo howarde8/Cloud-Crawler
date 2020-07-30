@@ -10,20 +10,24 @@ const app = express();
 app.use(bodyParser());
 app.post('/api/crawl', async (req, res) => {
   const { id, status, body } = req.body;
-  console.log(req.body); // TODO: remove. For testing
-  
+  console.log(body); // TODO: remove. For testing
+
   if (!id) {
+    console.log('Got request /api/crawl: ID is missing');
     return res.status(400).send('ID is missing');
   }
   if (!status) {
+    console.log('Got request /api/crawl: Status not found');
     return res.status(400).send('Status not found');
   } else if (status !== 'FAILED' && status !== 'SUCCESS') {
+    console.log('Got request /api/crawl: Status invalid, should be FAILED or SUCCESS');
     return res.status(400).send('Status invalid, should be FAILED or SUCCESS');
   }
   if (body) {
     try {
       JSON.parse(body);
     } catch (err) {
+      console.log('Got request /api/crawl: Body invalud, must be JSON array format');
       return res.status(400).send('Body invalud, must be JSON array format');
     }
   }

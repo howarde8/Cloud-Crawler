@@ -2,6 +2,9 @@ const jwt = require('jsonwebtoken');
 const pubsub = require('./pubsub');
 const bcrypt = require('bcryptjs');
 const { uuid } = require('uuidv4');
+const axios = require('axios');
+const rp = require('request-promise');
+const FormData = require('form-data');
 const { User, Crawl } = require('./db');
 
 module.exports = {
@@ -31,12 +34,45 @@ module.exports = {
       }
     },
     addCrawl: async (_, { url, xpath }) => {
+      const _id = uuid();
       const { dataValues: crawl } = await Crawl.create({
-        id: uuid(),
+        id: _id,
         url,
         xpath,
         status: 'STARTING',
       });
+
+      const options = {
+        method: 'POST',
+        url: 'http://crawler:8083/api/crawl/create_job/',
+        headers: {},
+        formData: {
+          id: _id,
+          url: url,
+          xpath: xpath,
+          frequency: '* * 3 * *',
+          proxy: '{"IP": "20118088150.host.telemar.net.br", "port": "8080"}',
+        },
+      };
+
+      try {
+        await rp(options);
+      } catch (err) {
+        console.log(err);
+      }
+      // const data = new FormData();
+      // data.append('id', _id);
+      // data.append('url', url);
+      // data.append('xpath', xpath);
+      // data.append('frequency', '* * 3 * *');
+      // data.append('proxy', JSON.stringify({ IP: '20118088150.host.telemar.net.br', port: '8080' }));
+
+      // try {
+      //   await axios.post('http://crawler:8083/api/crawl/create_job/', data, { headers: data.getHeaders() });
+      // } catch (err) {
+      //   console.log(err);
+      // }
+
       return crawl;
     },
     updateCrawl: async (_, { id, name, url, xpath }) => {
