@@ -176,7 +176,7 @@ def crawler_main(url, xpath, job_id, proxy):
         res_dict["body"] = []
         for text in texts:
             res_dict["body"].append(text.text)
-        res_dict["body"] = str(res_dict["body"])
+        res_dict["body"] = str(res_dict["body"]).replace("'", '"')
         api = requests.post(API_SERVER+url_addres, data=res_dict)
         driver.close()
        
